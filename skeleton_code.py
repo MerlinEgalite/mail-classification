@@ -1,5 +1,5 @@
 """
-This script can be used as skelton code to read the challenge train and test
+This script can be used as skeleton code to read the challenge train and test
 csvs, to train a trivial model, and write data to the submission file.
 """
 import pandas as pd
@@ -24,7 +24,7 @@ train_y = train_df[['label']]
 test_x = test_df[['mail_type']]
 
 ## Do one hot encoding of categorical feature
-feat_enc = OneHotEncoder()
+feat_enc = OneHotEncoder(handle_unknown='ignore')
 feat_enc.fit(train_x)
 train_x_featurized = feat_enc.transform(train_x)
 test_x_featurized = feat_enc.transform(test_x)
