@@ -4,7 +4,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-import keras
+from keras.layers import Dropout
 from keras.models import Sequential
 from keras.layers import Dense
 
@@ -24,12 +24,15 @@ train_x, test_x, train_y, test_y = train_test_split(train_x, train_y, test_size 
 # Neural network
 model = Sequential()
 model.add(Dense(12, input_dim=13, activation='relu'))
-model.add(Dense(18, activation='relu'))
+model.add(Dense(8, activation='relu'))
+model.add(Dense(16, activation='relu'))
+model.add(Dropout(0.2))
+model.add(Dense(8, activation='relu'))
 model.add(Dense(4, activation='softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 # training
-history = model.fit(train_x, train_y, epochs=100, batch_size=64)
+history = model.fit(train_x, train_y, epochs=400, batch_size=64)
 
 # test
 pred_test = model.predict(test_x)
