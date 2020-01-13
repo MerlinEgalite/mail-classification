@@ -8,10 +8,10 @@ import keras
 from keras.models import Sequential
 from keras.layers import Dense
 
-training_data = pd.read_csv('Training_Data_Labels.csv')
+training_data = pd.read_csv('datasets/new_train.csv')
 
 train_y = training_data.iloc[:,11:12].values
-train_x = training_data.drop(columns = ['label']).values
+train_x = training_data.drop(columns = ['Id','label']).values
 
 ohe = OneHotEncoder()
 train_y = ohe.fit_transform(train_y)
@@ -23,7 +23,7 @@ train_x, test_x, train_y, test_y = train_test_split(train_x, train_y, test_size 
 
 # Neural network
 model = Sequential()
-model.add(Dense(12, input_dim=14, activation='relu'))
+model.add(Dense(12, input_dim=13, activation='relu'))
 model.add(Dense(18, activation='relu'))
 model.add(Dense(4, activation='softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
@@ -47,3 +47,19 @@ for i in range(test_y.shape[0]):
 # Accuracy
 a = accuracy_score(pred,test)
 print('Accuracy is:', a*100)
+
+# Official Kaggle test
+test_data = pd.read_csv('datasets/new_test.csv')
+test_kaggle = test_data.drop(columns = ['Id']).values
+test_kaggle = sc.fit_transform(test_kaggle)
+
+pred_kaggle = model.predict(test_kaggle)
+
+# Results
+#Converting predictions to label
+pred = list()
+for i in range(len(pred_kaggle)):
+    pred.append(np.argmax(pred_kaggle[i]))
+
+pred_to_submit = pd.DataFrame(pred, columns=['label'])
+pred_to_submit.to_csv("datasets/neural_networks_submission.csv", index=True, index_label='Id')
