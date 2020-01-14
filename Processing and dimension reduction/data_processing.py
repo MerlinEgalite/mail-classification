@@ -90,6 +90,11 @@ def processing(dataset, new_dataset):
         new_dataset.at[index, 'org'] = new_dataset.at[index, 'org'].lower()
         new_dataset.at[index, 'tld'] = new_dataset.at[index, 'tld'].lower()
 
+    # Label Encoder to transform categories into numbers
+    categorical = ['day', 'month', 'org', 'tld', 'mail_type']
+    for cat in categorical:
+        new_dataset[cat] = LabelEnc(new_dataset, cat)
+
     return new_dataset
 
 
