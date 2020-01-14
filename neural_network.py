@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import OneHotEncoder
+from sklearn.preprocessing import LabelEncoder, OneHotEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from keras.layers import Dropout
@@ -11,29 +11,43 @@ from keras.layers import Dropout
 
 training_data = pd.read_csv('datasets/new_train.csv').sample(frac=1).reset_index(drop=True)
 
-train_y = training_data.iloc[:,11:12].values
-train_x = training_data.drop(columns = ['Id','label','day','month','hour']).values
+# Official Kaggle test
+test_data = pd.read_csv('datasets/new_test.csv')
+test_kaggle = test_data.drop(columns = ['Id','day','month','hour'])
+#test_kaggle = sc.fit_transform(test_kaggle)
 
+train_y = training_data.iloc[:,11:12].values
+train_x = training_data.drop(columns = ['Id','label','day','month','hour'])
+
+# Encode on both th training data and the test
+X = train_x.append(test_kaggle, ignore_index = True).values
 ohe = OneHotEncoder()
+ohe.fit(X)
+
+train_x = train_x.values
+test_kaggle = ohe.transform(test_kaggle.values)
+train_x = ohe.transform(train_x)
+
 train_y = ohe.fit_transform(train_y)
 
+'''
 sc = StandardScaler()
 train_x = sc.fit_transform(train_x)
+train_x = sc.fit_transform(test_kaggle)'''
 
 train_x, test_x, train_y, test_y = train_test_split(train_x, train_y, test_size = 0.1)
 
 # Neural network
 model = Sequential()
-model.add(Dropout(0.2, input_shape = (10,)))
+#model.add(Dropout(0.2, input_shape = (10,)))
+model.add(Dropout(0.33, input_shape = (26586,)))
 #model.add(Dense(10, input_dim=10, activation='relu'))
-model.add(Dense(20, activation='relu'))
-model.add(Dense(20, activation='relu'))
-model.add(Dense(10, activation='relu'))
+model.add(Dense(1000, activation='relu'))
 model.add(Dense(4, activation='softmax'))
 model.compile(loss='categorical_crossentropy', optimizer='adam', metrics=['accuracy'])
 
 # training
-history = model.fit(train_x, train_y, epochs=15, batch_size=64)
+history = model.fit(train_x, train_y, epochs=5, batch_size=64)
 
 
 # test
@@ -53,10 +67,6 @@ for i in range(test_y.shape[0]):
 a = accuracy_score(pred,test)
 print('Accuracy is:', a*100)
 
-# Official Kaggle test
-test_data = pd.read_csv('datasets/new_test.csv')
-test_kaggle = test_data.drop(columns = ['Id','day','month','hour']).values
-test_kaggle = sc.fit_transform(test_kaggle)
 
 pred_kaggle = model.predict(test_kaggle)
 
